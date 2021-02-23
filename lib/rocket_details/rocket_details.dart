@@ -40,6 +40,11 @@ class RocketDetailsScreen extends StatelessWidget {
               style: textTheme.subtitle2,
             ),
           ),
+          Text(rocket.wikipedia),
+          Text('${rocket.firstFlight}'),
+          Text('${rocket.height}'),
+          Text('${rocket.diameter}'),
+          Text('${rocket.mass}'),
         ],
       ),
     );

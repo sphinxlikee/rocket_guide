@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:meta/meta.dart';
+import 'package:http/http.dart' as http;
 
 class Backend {
   final String hostUrl;
@@ -6,8 +9,71 @@ class Backend {
   const Backend(this.hostUrl);
 
   Future<List<Rocket>> getRockets() async {
+    final url = '$hostUrl/rockets';
+
+    final response = await http.get(url);
+    if (response.statusCode != 200) {
+      throw Exception(response.reasonPhrase);
+    }
+
+    final body = response.body;
+    final jsonData = json.decode(body) as List;
+
+    final rockets =
+        jsonData.map((jsonMap) => Rocket.fromJson(jsonMap)).toList();
+
     // TODO: Use the host url to get some rockets
-    return const [
+    return rockets;
+  }
+}
+
+class Rocket {
+  final String id;
+  final String name;
+  final String description;
+  final bool active;
+  final int boosters;
+  final List<String> flickrImages;
+  final String wikipedia;
+  final DateTime firstFlight;
+  final double height;
+  final double diameter;
+  final double mass;
+
+  const Rocket({
+    @required this.id,
+    @required this.name,
+    @required this.description,
+    @required this.active,
+    @required this.boosters,
+    @required this.flickrImages,
+    @required this.wikipedia,
+    @required this.firstFlight,
+    @required this.height,
+    @required this.diameter,
+    @required this.mass,
+  });
+
+  factory Rocket.fromJson(Map<String, dynamic> jsonMap) {
+    return Rocket(
+      id: jsonMap['id'],
+      name: jsonMap['name'],
+      description: jsonMap['description'],
+      active: jsonMap['active'],
+      boosters: jsonMap['boosters'],
+      flickrImages: List<String>.from(jsonMap['flickr_images']),
+      wikipedia: jsonMap['wikipedia'],
+      firstFlight: DateTime.parse(jsonMap['first_flight']),
+      height: jsonMap['height']['meters'], 
+      diameter: jsonMap['diameter']['meters'], 
+      mass: jsonMap['mass']['kg'], 
+    );
+  }
+}
+
+/*
+
+return const [
       Rocket(
         id: 'falcon_1',
         name: 'Falcon 1',
@@ -27,10 +93,10 @@ class Backend {
         id: 'falcon_heavy',
         name: 'Falcon Heavy',
         description: 'With the ability to lift into orbit over 54 metric tons '
-        '(119,000 lb) - a mass equivalent to a 737 jetliner loaded with '
-        'passengers, crew, luggage and fuel -- Falcon Heavy can lift more '
-        'than twice the payload of the next closest operational vehicle, '
-        'the Delta IV Heavy, at one-third the cost.',
+            '(119,000 lb) - a mass equivalent to a 737 jetliner loaded with '
+            'passengers, crew, luggage and fuel -- Falcon Heavy can lift more '
+            'than twice the payload of the next closest operational vehicle, '
+            'the Delta IV Heavy, at one-third the cost.',
         active: true,
         boosters: 2,
         flickrImages: [
@@ -41,29 +107,4 @@ class Backend {
         ],
       ),
     ];
-  }
-}
-
-class Rocket {
-  final String id;
-  final String name;
-  final String description;
-  final bool active;
-  final int boosters;
-  final List<String> flickrImages;
-
-  const Rocket({
-    @required this.id,
-    @required this.name,
-    @required this.description,
-    @required this.active,
-    @required this.boosters,
-    this.flickrImages = const [],
-  })  : assert(id != null),
-        assert(name != null),
-        assert(description != null),
-        assert(active != null),
-        assert(boosters != null),
-        assert(flickrImages != null);
-
-}
+    */
